@@ -39,9 +39,13 @@ METADATA
 main() {
     librenmsJSON="$(get_smart)"
 
-    if [ "${1,,}" == '--json' ]; then
+   if ! which 'jq' > /dev/null 2>&1; then
+        errorCode=1
+        # The underscore here is a hack since we have to strip spaces without jq
+        errorString='jq_missing!'
+    elif [ "${1,,}" == '--json' ]; then
         # We don't care if this fails since it will always return the error in the JSON data
-        echo "${librenmsJSON}"
+        jq -c '.' <<< "${librenmsJSON}"
     else
         # helper for grabbing legacy information - probably needs more code to provide null on non-error missing values
         get_legacy_info() {
